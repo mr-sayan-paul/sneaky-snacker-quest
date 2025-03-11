@@ -1,8 +1,9 @@
 
 import React, { useMemo } from 'react';
-import { Position, GameStatus } from './useSnakeGame';
+import { Position, GameStatus, Direction } from './useSnakeGame';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import SnakeSegment from './SnakeSegment';
 
 interface GameBoardProps {
   snake: Position[];
@@ -13,6 +14,7 @@ interface GameBoardProps {
   highScore: number;
   onReset: () => void;
   onStart: () => void;
+  direction: Direction;
 }
 
 const GameBoard: React.FC<GameBoardProps> = ({
@@ -24,6 +26,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   highScore,
   onReset,
   onStart,
+  direction,
 }) => {
   // Create empty grid cells
   const emptyCells = useMemo(() => {
@@ -48,26 +51,6 @@ const GameBoard: React.FC<GameBoardProps> = ({
     return cells;
   }, [snake, food, gridSize]);
 
-  // Determine cell classes
-  const getCellClass = (x: number, y: number) => {
-    // Check if it's snake head
-    if (snake[0].x === x && snake[0].y === y) {
-      return 'snake-head';
-    }
-    
-    // Check if it's snake body
-    if (snake.some((segment, index) => index > 0 && segment.x === x && segment.y === y)) {
-      return 'snake-body';
-    }
-    
-    // Check if it's food
-    if (food.x === x && food.y === y) {
-      return 'snake-food';
-    }
-    
-    return '';
-  };
-
   return (
     <div 
       className="relative w-full max-w-[500px] mx-auto aspect-square" 
@@ -83,30 +66,33 @@ const GameBoard: React.FC<GameBoardProps> = ({
           />
         ))}
         
-        {/* Render snake body */}
-        {snake.slice(1).map((segment, index) => (
-          <div
+        {/* Render snake body segments */}
+        {snake.slice(1, -1).map((segment, index) => (
+          <SnakeSegment
             key={`snake-body-${index}`}
-            className="snake-cell snake-body"
-            style={{ 
-              gridColumn: segment.x + 1, 
-              gridRow: segment.y + 1,
-            }}
+            type="body"
+            position={segment}
+            direction={direction}
+            index={index}
+            totalLength={snake.length}
           />
         ))}
         
-        {/* Render snake head */}
+        {/* Render snake tail (last segment) */}
+        {snake.length > 1 && (
+          <SnakeSegment
+            type="tail"
+            position={snake[snake.length - 1]}
+            direction={direction}
+          />
+        )}
+        
+        {/* Render snake head (first segment) */}
         {snake.length > 0 && (
-          <motion.div
-            key={`snake-head-${snake[0].x}-${snake[0].y}`}
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.1 }}
-            className="snake-cell snake-head"
-            style={{ 
-              gridColumn: snake[0].x + 1, 
-              gridRow: snake[0].y + 1,
-            }}
+          <SnakeSegment
+            type="head"
+            position={snake[0]}
+            direction={direction}
           />
         )}
         
@@ -126,17 +112,17 @@ const GameBoard: React.FC<GameBoardProps> = ({
       
       {/* Game over or start overlay */}
       {gameStatus !== 'PLAYING' && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center game-over-overlay">
+        <div className="absolute inset-0 flex flex-col items-center justify-center game-over-overlay dark:bg-slate-900/85">
           {gameStatus === 'GAME_OVER' ? (
             <div className="text-center space-y-6">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900 score-text delay-[0ms]">
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white score-text delay-[0ms]">
                 Game Over
               </h2>
               <div className="space-y-2">
-                <p className="text-lg text-slate-700 score-text delay-[100ms]">
+                <p className="text-lg text-slate-700 dark:text-slate-300 score-text delay-[100ms]">
                   Score: <span className="font-semibold">{score}</span>
                 </p>
-                <p className="text-lg text-slate-700 score-text delay-[200ms]">
+                <p className="text-lg text-slate-700 dark:text-slate-300 score-text delay-[200ms]">
                   High Score: <span className="font-semibold">{highScore}</span>
                 </p>
               </div>
@@ -144,24 +130,24 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 onClick={onReset}
                 variant="default" 
                 size="lg"
-                className="mt-4 bg-slate-900 hover:bg-slate-800 text-white score-text delay-[300ms]"
+                className="mt-4 bg-slate-900 hover:bg-slate-800 text-white dark:bg-blue-600 dark:hover:bg-blue-700 score-text delay-[300ms]"
               >
                 Play Again
               </Button>
             </div>
           ) : (
             <div className="text-center space-y-6">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900 score-text delay-[0ms]">
+              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white score-text delay-[0ms]">
                 Snake Game
               </h2>
-              <p className="text-lg text-slate-700 max-w-xs mx-auto score-text delay-[100ms]">
+              <p className="text-lg text-slate-700 dark:text-slate-300 max-w-xs mx-auto score-text delay-[100ms]">
                 Use arrow keys or WASD to move the snake. Eat food to grow longer.
               </p>
               <Button 
                 onClick={onStart}
                 variant="default" 
                 size="lg"
-                className="mt-4 bg-slate-900 hover:bg-slate-800 text-white score-text delay-[200ms]"
+                className="mt-4 bg-slate-900 hover:bg-slate-800 text-white dark:bg-blue-600 dark:hover:bg-blue-700 score-text delay-[200ms]"
               >
                 Start Game
               </Button>

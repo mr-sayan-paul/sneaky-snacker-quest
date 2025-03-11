@@ -16,6 +16,7 @@ interface GameState {
   gameStatus: GameStatus;
   gridSize: number;
   speed: number;
+  baseSpeed: number;
 }
 
 export const useSnakeGame = (initialGridSize = 20) => {
@@ -37,6 +38,7 @@ export const useSnakeGame = (initialGridSize = 20) => {
     gameStatus: 'IDLE',
     gridSize: initialGridSize,
     speed: 150, // Initial speed in ms
+    baseSpeed: 150, // Base speed that can be adjusted by the slider
   });
 
   // Game loop reference
@@ -58,6 +60,16 @@ export const useSnakeGame = (initialGridSize = 20) => {
     return newFood;
   }, [state.gridSize]);
 
+  // Allow user to set a custom base speed
+  const setCustomSpeed = useCallback((newBaseSpeed: number) => {
+    setState(prev => ({
+      ...prev,
+      baseSpeed: newBaseSpeed,
+      // Also update current speed if not affected by score yet
+      speed: prev.score < 5 ? newBaseSpeed : Math.max(70, newBaseSpeed - (Math.floor(prev.score / 5) * 10)),
+    }));
+  }, []);
+
   // Reset game to initial state
   const resetGame = useCallback(() => {
     const center = Math.floor(state.gridSize / 2);
@@ -69,7 +81,7 @@ export const useSnakeGame = (initialGridSize = 20) => {
       nextDirection: null,
       score: 0,
       gameStatus: 'IDLE',
-      speed: 150, // Reset speed
+      speed: prev.baseSpeed, // Reset speed to base speed
     }));
     
     if (gameLoopRef.current !== null) {
@@ -199,8 +211,9 @@ export const useSnakeGame = (initialGridSize = 20) => {
         // Increase score
         newScore = prev.score + 1;
         // Increase speed every 5 points, with a minimum speed of 70ms
+        // Use baseSpeed as the starting point for speed calculations
         if (newScore % 5 === 0) {
-          newSpeed = Math.max(70, prev.speed - 10);
+          newSpeed = Math.max(70, prev.baseSpeed - Math.floor(newScore / 5) * 10);
         }
       } else {
         // Remove tail if didn't eat food
@@ -295,8 +308,10 @@ export const useSnakeGame = (initialGridSize = 20) => {
     gameStatus: state.gameStatus,
     gridSize: state.gridSize,
     direction: state.direction,
+    speed: state.speed,
     resetGame,
     startGame,
     setDirection,
+    setCustomSpeed,
   };
 };
