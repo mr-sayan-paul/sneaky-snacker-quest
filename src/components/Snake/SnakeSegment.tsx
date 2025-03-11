@@ -45,12 +45,28 @@ const SnakeSegment: React.FC<SnakeSegmentProps> = ({
         }}
       >
         {/* Eyes */}
-        <div className="absolute left-1/4 top-1/4 w-1.5 h-1.5 bg-white rounded-full"></div>
-        <div className="absolute right-1/4 top-1/4 w-1.5 h-1.5 bg-white rounded-full"></div>
+        <motion.div 
+          className="absolute left-1/4 top-1/4 w-1.5 h-1.5 bg-white rounded-full"
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
+        ></motion.div>
+        <motion.div 
+          className="absolute right-1/4 top-1/4 w-1.5 h-1.5 bg-white rounded-full"
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
+        ></motion.div>
         
         {/* Pupils */}
-        <div className="absolute left-1/4 top-1/4 w-0.5 h-0.5 bg-black rounded-full translate-x-0.5 translate-y-0.5"></div>
-        <div className="absolute right-1/4 top-1/4 w-0.5 h-0.5 bg-black rounded-full -translate-x-0.5 translate-y-0.5"></div>
+        <motion.div 
+          className="absolute left-1/4 top-1/4 w-0.5 h-0.5 bg-black rounded-full translate-x-0.5 translate-y-0.5"
+          animate={{ y: [0, 0.3, 0] }}
+          transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+        ></motion.div>
+        <motion.div 
+          className="absolute right-1/4 top-1/4 w-0.5 h-0.5 bg-black rounded-full -translate-x-0.5 translate-y-0.5"
+          animate={{ y: [0, 0.3, 0] }}
+          transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+        ></motion.div>
         
         {/* Tongue (animated) */}
         <motion.div 
@@ -62,28 +78,47 @@ const SnakeSegment: React.FC<SnakeSegmentProps> = ({
       </motion.div>
     );
   } else if (type === 'tail') {
-    // Snake tail (last segment)
+    // Snake tail (last segment) with animation
     return (
-      <div
+      <motion.div
+        initial={{ scale: 0.9 }}
+        animate={{ scale: 1 }}
         className="snake-cell snake-tail"
         style={{ 
           gridColumn: position.x + 1, 
           gridRow: position.y + 1,
           transform: `rotate(${getRotation()})`,
+          borderTopLeftRadius: '40%',
+          borderTopRightRadius: '40%',
         }}
-      ></div>
+      >
+        {/* Tail tip animation */}
+        <motion.div 
+          className="absolute bottom-0 left-1/2 w-1 h-1 bg-slate-300 dark:bg-slate-500 rounded-full"
+          animate={{ y: [0, -1, 0] }}
+          transition={{ duration: 1.2, repeat: Infinity, repeatType: "reverse" }}
+          style={{ transform: 'translateX(-50%)' }}
+        ></motion.div>
+      </motion.div>
     );
   } else {
-    // Snake body
+    // Snake body with color gradient based on position
+    const opacity = 0.9 - (index / (totalLength * 2));
+    const hue = type === 'head' ? 'var(--snake-head)' : 'var(--snake-body)';
+    
     return (
-      <div
+      <motion.div
+        initial={{ scale: 0.9 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 0.1 }}
         className="snake-cell snake-body"
         style={{ 
           gridColumn: position.x + 1, 
           gridRow: position.y + 1,
-          opacity: 0.9 - (index / (totalLength * 2)),
+          opacity: opacity,
+          background: `hsl(${hue})`,
         }}
-      ></div>
+      />
     );
   }
 };

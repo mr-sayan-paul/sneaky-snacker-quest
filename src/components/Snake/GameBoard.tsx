@@ -2,9 +2,9 @@
 import React, { useMemo } from 'react';
 import { Position, GameStatus, Direction } from './useSnakeGame';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import SnakeSegment from './SnakeSegment';
-import { Pause } from 'lucide-react';
+import { Pause, Play, Trophy, Flame } from 'lucide-react';
 
 interface GameBoardProps {
   snake: Position[];
@@ -97,12 +97,12 @@ const GameBoard: React.FC<GameBoardProps> = ({
           />
         )}
         
-        {/* Render food */}
+        {/* Render food with animation */}
         <motion.div
           key={`food-${food.x}-${food.y}`}
           initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.3 }}
           className="snake-cell snake-food"
           style={{ 
             gridColumn: food.x + 1, 
@@ -112,83 +112,148 @@ const GameBoard: React.FC<GameBoardProps> = ({
       </div>
       
       {/* Game over, paused, or start overlay */}
-      {gameStatus !== 'PLAYING' && (
-        <div className={`absolute inset-0 flex flex-col items-center justify-center game-over-overlay dark:bg-slate-900/85 ${gameStatus === 'PAUSED' ? 'paused-overlay' : ''}`}>
-          {gameStatus === 'GAME_OVER' ? (
-            <div className="text-center space-y-6">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white score-text delay-[0ms]">
-                Game Over
-              </h2>
-              <div className="space-y-2">
-                <p className="text-lg text-slate-700 dark:text-slate-300 score-text delay-[100ms]">
-                  Score: <span className="font-semibold">{score}</span>
-                </p>
-                <p className="text-lg text-slate-700 dark:text-slate-300 score-text delay-[200ms]">
-                  High Score: <span className="font-semibold">{highScore}</span>
-                </p>
-              </div>
-              <Button 
-                onClick={onReset}
-                variant="default" 
-                size="lg"
-                className="mt-4 bg-slate-900 hover:bg-slate-800 text-white dark:bg-blue-600 dark:hover:bg-blue-700 score-text delay-[300ms]"
-              >
-                Play Again
-              </Button>
-            </div>
-          ) : gameStatus === 'PAUSED' ? (
-            <div className="text-center space-y-6">
-              <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white/20 dark:bg-slate-800/20 p-6 rounded-full backdrop-blur-sm"
-              >
-                <Pause className="h-12 w-12 text-slate-800 dark:text-white opacity-80" />
-              </motion.div>
-              <motion.h2 
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
-                className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white"
-              >
-                Game Paused
-              </motion.h2>
-              <motion.div
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.2 }}
-              >
-                <Button 
-                  onClick={onStart}
-                  variant="default" 
-                  size="lg"
-                  className="mt-2 bg-slate-900 hover:bg-slate-800 text-white dark:bg-blue-600 dark:hover:bg-blue-700"
+      <AnimatePresence>
+        {gameStatus !== 'PLAYING' && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={`absolute inset-0 flex flex-col items-center justify-center game-over-overlay dark:bg-slate-900/85 ${gameStatus === 'PAUSED' ? 'paused-overlay' : ''}`}
+          >
+            {gameStatus === 'GAME_OVER' ? (
+              <div className="text-center space-y-6">
+                <motion.h2 
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.4 }}
+                  className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white"
                 >
-                  Resume Game
-                </Button>
-              </motion.div>
-            </div>
-          ) : (
-            <div className="text-center space-y-6">
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white score-text delay-[0ms]">
-                Snake Game
-              </h2>
-              <p className="text-lg text-slate-700 dark:text-slate-300 max-w-xs mx-auto score-text delay-[100ms]">
-                Use arrow keys or WASD to move the snake. Eat food to grow longer.
-              </p>
-              <Button 
-                onClick={onStart}
-                variant="default" 
-                size="lg"
-                className="mt-4 bg-slate-900 hover:bg-slate-800 text-white dark:bg-blue-600 dark:hover:bg-blue-700 score-text delay-[200ms]"
-              >
-                Start Game
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
+                  Game Over
+                </motion.h2>
+                <div className="space-y-2">
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.4, delay: 0.1 }}
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <Flame className="h-5 w-5 text-red-500" />
+                    <p className="text-lg text-slate-700 dark:text-slate-300">
+                      Score: <span className="font-semibold">{score}</span>
+                    </p>
+                  </motion.div>
+                  <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.4, delay: 0.2 }}
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <Trophy className="h-5 w-5 text-yellow-500" />
+                    <p className="text-lg text-slate-700 dark:text-slate-300">
+                      High Score: <span className="font-semibold">{highScore}</span>
+                    </p>
+                  </motion.div>
+                </div>
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.3 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button 
+                    onClick={onReset}
+                    variant="default" 
+                    size="lg"
+                    className="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
+                  >
+                    <Play className="mr-2 h-5 w-5" />
+                    Play Again
+                  </Button>
+                </motion.div>
+              </div>
+            ) : gameStatus === 'PAUSED' ? (
+              <div className="text-center space-y-6">
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1, rotate: [0, 10, 0, -10, 0] }}
+                  transition={{ 
+                    duration: 0.5,
+                    rotate: { repeat: Infinity, repeatDelay: 2, duration: 1.5 }
+                  }}
+                  className="bg-white/20 dark:bg-slate-800/20 p-6 rounded-full backdrop-blur-sm"
+                >
+                  <Pause className="h-12 w-12 text-slate-800 dark:text-white opacity-80" />
+                </motion.div>
+                <motion.h2 
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.3, delay: 0.1 }}
+                  className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white"
+                >
+                  Game Paused
+                </motion.h2>
+                <motion.div
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button 
+                    onClick={onStart}
+                    variant="default" 
+                    size="lg"
+                    className="mt-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg"
+                  >
+                    <Play className="mr-2 h-5 w-5" />
+                    Resume Game
+                  </Button>
+                </motion.div>
+              </div>
+            ) : (
+              <div className="text-center space-y-6">
+                <motion.h2 
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ 
+                    scale: 1, 
+                    opacity: 1,
+                    transition: { duration: 0.5 }
+                  }}
+                  className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent"
+                >
+                  Snake Game
+                </motion.h2>
+                <motion.p 
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.1 }}
+                  className="text-lg text-slate-700 dark:text-slate-300 max-w-xs mx-auto"
+                >
+                  Use arrow keys or WASD to move the snake. Eat food to grow longer.
+                </motion.p>
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button 
+                    onClick={onStart}
+                    variant="default" 
+                    size="lg"
+                    className="mt-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
+                  >
+                    <Play className="mr-2 h-5 w-5" />
+                    Start Game
+                  </Button>
+                </motion.div>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

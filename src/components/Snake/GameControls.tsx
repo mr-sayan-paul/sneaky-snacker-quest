@@ -12,7 +12,8 @@ import {
   Play,
   Pause,
   Gauge,
-  FastForward
+  FastForward,
+  Gamepad,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -38,64 +39,95 @@ const GameControls: React.FC<GameControlsProps> = ({
   // Convert speed to slider value (slider shows 1-10, but speed is 70-150ms)
   const speedValue = Math.round(((150 - currentSpeed) / 80) * 9) + 1;
   
+  // Animations for button hover
+  const buttonVariants = {
+    hover: { 
+      scale: 1.05, 
+      boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+      transition: { type: "spring", stiffness: 400, damping: 10 }
+    },
+    tap: { scale: 0.95 }
+  };
+  
   return (
-    <div className="mt-8">
+    <div className="mt-4">
+      {/* Game status text with animation */}
+      <motion.div 
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-3 flex justify-center"
+      >
+        <div className="inline-block px-3 py-1 rounded-full text-sm bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium">
+          <Gamepad className="inline-block w-4 h-4 mr-1" />
+          {gameStatus === 'IDLE' && "Ready to Play"}
+          {gameStatus === 'PLAYING' && "Game On!"}
+          {gameStatus === 'PAUSED' && "Game Paused"}
+          {gameStatus === 'GAME_OVER' && "Game Over"}
+        </div>
+      </motion.div>
+      
       {/* Game control buttons (pause/play/restart) */}
-      <div className="flex justify-center gap-4 mb-6 max-w-[280px] mx-auto">
-        {gameStatus === 'PLAYING' && onPause && (
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-full"
-          >
-            <Button 
-              variant="outline"
-              className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
-              onClick={onPause}
+      <div className="flex flex-col gap-3 mb-6 max-w-[280px] mx-auto">
+        <div className="flex gap-3">
+          {gameStatus === 'PLAYING' && onPause && (
+            <motion.div
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
+              className="w-full"
             >
-              <Pause className="h-5 w-5 mr-2" />
-              Pause
-            </Button>
-          </motion.div>
-        )}
-        
-        {gameStatus === 'PAUSED' && (
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-full"
-          >
-            <Button 
-              variant="outline"
-              className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
-              onClick={onStart}
+              <Button 
+                variant="outline"
+                className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
+                onClick={onPause}
+              >
+                <Pause className="h-5 w-5 mr-2" />
+                Pause
+              </Button>
+            </motion.div>
+          )}
+          
+          {gameStatus === 'PAUSED' && (
+            <motion.div
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
+              className="w-full"
             >
-              <Play className="h-5 w-5 mr-2" />
-              Resume
-            </Button>
-          </motion.div>
-        )}
-        
-        {(gameStatus === 'IDLE' || gameStatus === 'GAME_OVER') && (
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="w-full"
-          >
-            <Button 
-              variant="outline"
-              className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
-              onClick={onStart}
+              <Button 
+                variant="outline"
+                className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
+                onClick={onStart}
+              >
+                <Play className="h-5 w-5 mr-2" />
+                Resume
+              </Button>
+            </motion.div>
+          )}
+          
+          {(gameStatus === 'IDLE' || gameStatus === 'GAME_OVER') && (
+            <motion.div
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
+              className="w-full"
             >
-              <Play className="h-5 w-5 mr-2" />
-              {gameStatus === 'IDLE' ? 'Start' : 'Play Again'}
-            </Button>
-          </motion.div>
-        )}
+              <Button 
+                variant="outline"
+                className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
+                onClick={onStart}
+              >
+                <Play className="h-5 w-5 mr-2" />
+                {gameStatus === 'IDLE' ? 'Start' : 'Play Again'}
+              </Button>
+            </motion.div>
+          )}
+        </div>
         
         <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          variants={buttonVariants}
+          whileHover="hover"
+          whileTap="tap"
           className="w-full"
         >
           <Button 
@@ -113,8 +145,9 @@ const GameControls: React.FC<GameControlsProps> = ({
       {(gameStatus === 'PLAYING' || gameStatus === 'PAUSED') && (
         <div className="flex flex-col items-center max-w-[280px] mx-auto">
           <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
           >
             <Button
               variant="outline"
@@ -128,8 +161,9 @@ const GameControls: React.FC<GameControlsProps> = ({
           
           <div className="flex justify-center gap-2 mb-2">
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
             >
               <Button
                 variant="outline"
@@ -142,8 +176,9 @@ const GameControls: React.FC<GameControlsProps> = ({
             </motion.div>
             
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
             >
               <Button
                 variant="outline"
@@ -156,8 +191,9 @@ const GameControls: React.FC<GameControlsProps> = ({
             </motion.div>
             
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
             >
               <Button
                 variant="outline"
@@ -182,6 +218,7 @@ const GameControls: React.FC<GameControlsProps> = ({
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.05 }}
               className="flex items-center bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full"
             >
               <FastForward className="h-3 w-3 mr-1 text-slate-700 dark:text-slate-300" />

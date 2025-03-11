@@ -53,7 +53,14 @@ const Index = () => {
           className="text-center mb-6"
         >
           <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">
-            Snake Game
+            <motion.span 
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+              className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent"
+            >
+              Snake Game
+            </motion.span>
           </h1>
           <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
             Use arrow keys or touch controls to navigate the snake. Eat food to grow longer and avoid hitting the walls or yourself.
@@ -89,6 +96,8 @@ const Index = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.3 }}
+              whileHover={{ boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }}
+              className="rounded-lg overflow-hidden"
             >
               <GameBoard
                 snake={snake}
@@ -109,6 +118,7 @@ const Index = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
+              whileHover={{ y: -5, boxShadow: "0 15px 30px rgba(0,0,0,0.1)" }}
               className="glass-panel p-4 rounded-lg"
             >
               <h3 className="font-semibold text-lg mb-3 text-center text-slate-800 dark:text-slate-200">Game Controls</h3>
