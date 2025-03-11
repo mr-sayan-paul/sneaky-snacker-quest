@@ -21,6 +21,7 @@ const Index = () => {
     gameStatus,
     resetGame,
     startGame,
+    pauseGame,
     setDirection,
     direction,
     speed,
@@ -57,6 +58,15 @@ const Index = () => {
           <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
             Use arrow keys or touch controls to navigate the snake. Eat food to grow longer and avoid hitting the walls or yourself.
           </p>
+          {gameStatus === 'PAUSED' && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-2 inline-block bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 px-3 py-1 rounded-full text-sm font-medium"
+            >
+              Game Paused
+            </motion.div>
+          )}
         </motion.div>
 
         <motion.div
@@ -100,6 +110,7 @@ const Index = () => {
             onDirectionChange={setDirection}
             onReset={resetGame}
             onStart={startGame}
+            onPause={pauseGame}
             onSpeedChange={setCustomSpeed}
             currentSpeed={speed}
             gameStatus={gameStatus}

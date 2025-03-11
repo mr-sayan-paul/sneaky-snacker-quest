@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -155,8 +154,18 @@
   animation: appear 0.4s ease-out forwards;
 }
 
+.paused-overlay {
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(4px);
+  animation: appear-subtle 0.3s ease-out forwards;
+}
+
 .dark .game-over-overlay {
   background-color: rgba(15, 23, 42, 0.85);
+}
+
+.dark .paused-overlay {
+  background-color: rgba(15, 23, 42, 0.75);
 }
 
 .score-text {
@@ -169,6 +178,15 @@
 
 .control-button:active {
   transform: scale(0.95);
+}
+
+.control-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.dark .control-button:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
 .glass-panel {
@@ -213,6 +231,15 @@
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes appear-subtle {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
 

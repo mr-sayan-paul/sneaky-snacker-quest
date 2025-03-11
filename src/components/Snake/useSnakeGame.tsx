@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 // Types for the game
 export type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT' | null;
 export type Position = { x: number; y: number };
-export type GameStatus = 'IDLE' | 'PLAYING' | 'GAME_OVER';
+export type GameStatus = 'IDLE' | 'PLAYING' | 'PAUSED' | 'GAME_OVER';
 
 interface GameState {
   snake: Position[];
@@ -92,12 +92,27 @@ export const useSnakeGame = (initialGridSize = 20) => {
 
   // Start the game
   const startGame = useCallback(() => {
-    if (state.gameStatus !== 'GAME_OVER') {
+    if (state.gameStatus === 'IDLE' || state.gameStatus === 'PAUSED') {
       setState(prev => ({
         ...prev,
         gameStatus: 'PLAYING',
         direction: prev.direction || 'RIGHT', // Default to RIGHT if no direction
       }));
+    }
+  }, [state.gameStatus]);
+
+  // Pause the game
+  const pauseGame = useCallback(() => {
+    if (state.gameStatus === 'PLAYING') {
+      setState(prev => ({
+        ...prev,
+        gameStatus: 'PAUSED',
+      }));
+      
+      if (gameLoopRef.current !== null) {
+        cancelAnimationFrame(gameLoopRef.current);
+        gameLoopRef.current = null;
+      }
     }
   }, [state.gameStatus]);
 
@@ -248,6 +263,15 @@ export const useSnakeGame = (initialGridSize = 20) => {
         startGame();
       }
       
+      // Add pause functionality for 'p' or 'space' key
+      if (e.key === 'p' || e.key === ' ') {
+        if (state.gameStatus === 'PLAYING') {
+          pauseGame();
+        } else if (state.gameStatus === 'PAUSED') {
+          startGame();
+        }
+      }
+      
       if (state.gameStatus !== 'PLAYING') return;
       
       switch (e.key) {
@@ -276,7 +300,7 @@ export const useSnakeGame = (initialGridSize = 20) => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [state.gameStatus, startGame, setDirection]);
+  }, [state.gameStatus, startGame, pauseGame, setDirection]);
 
   // Game loop
   useEffect(() => {
@@ -311,6 +335,7 @@ export const useSnakeGame = (initialGridSize = 20) => {
     speed: state.speed,
     resetGame,
     startGame,
+    pauseGame,
     setDirection,
     setCustomSpeed,
   };

@@ -4,6 +4,7 @@ import { Position, GameStatus, Direction } from './useSnakeGame';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import SnakeSegment from './SnakeSegment';
+import { Pause } from 'lucide-react';
 
 interface GameBoardProps {
   snake: Position[];
@@ -110,9 +111,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
         />
       </div>
       
-      {/* Game over or start overlay */}
+      {/* Game over, paused, or start overlay */}
       {gameStatus !== 'PLAYING' && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center game-over-overlay dark:bg-slate-900/85">
+        <div className={`absolute inset-0 flex flex-col items-center justify-center game-over-overlay dark:bg-slate-900/85 ${gameStatus === 'PAUSED' ? 'paused-overlay' : ''}`}>
           {gameStatus === 'GAME_OVER' ? (
             <div className="text-center space-y-6">
               <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white score-text delay-[0ms]">
@@ -134,6 +135,39 @@ const GameBoard: React.FC<GameBoardProps> = ({
               >
                 Play Again
               </Button>
+            </div>
+          ) : gameStatus === 'PAUSED' ? (
+            <div className="text-center space-y-6">
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white/20 dark:bg-slate-800/20 p-6 rounded-full backdrop-blur-sm"
+              >
+                <Pause className="h-12 w-12 text-slate-800 dark:text-white opacity-80" />
+              </motion.div>
+              <motion.h2 
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white"
+              >
+                Game Paused
+              </motion.h2>
+              <motion.div
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+              >
+                <Button 
+                  onClick={onStart}
+                  variant="default" 
+                  size="lg"
+                  className="mt-2 bg-slate-900 hover:bg-slate-800 text-white dark:bg-blue-600 dark:hover:bg-blue-700"
+                >
+                  Resume Game
+                </Button>
+              </motion.div>
             </div>
           ) : (
             <div className="text-center space-y-6">
