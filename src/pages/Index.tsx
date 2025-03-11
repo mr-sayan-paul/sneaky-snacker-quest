@@ -1,11 +1,97 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useEffect } from 'react';
+import { useSnakeGame } from '@/components/Snake/useSnakeGame';
+import GameBoard from '@/components/Snake/GameBoard';
+import GameControls from '@/components/Snake/GameControls';
+import ScoreBoard from '@/components/Snake/ScoreBoard';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { motion } from 'framer-motion';
 
 const Index = () => {
+  const isMobile = useIsMobile();
+  const gridSize = isMobile ? 15 : 20; // Smaller grid for mobile
+  
+  const {
+    snake,
+    food,
+    score,
+    highScore,
+    gameStatus,
+    resetGame,
+    startGame,
+    setDirection,
+  } = useSnakeGame(gridSize);
+
+  // Adjust layout on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      // Simply trigger a re-render
+      if (gameStatus === 'PLAYING') {
+        resetGame();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [gameStatus, resetGame]);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-gradient-to-b from-slate-50 to-slate-100">
+      <div className="w-full max-w-3xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-8"
+        >
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900 mb-2">
+            Snake Game
+          </h1>
+          <p className="text-slate-500 max-w-md mx-auto">
+            Use arrow keys or touch controls to navigate the snake. Eat food to grow longer and avoid hitting the walls or yourself.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mb-6"
+        >
+          <ScoreBoard score={score} highScore={highScore} />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <GameBoard
+            snake={snake}
+            food={food}
+            gridSize={gridSize}
+            gameStatus={gameStatus}
+            score={score}
+            highScore={highScore}
+            onReset={resetGame}
+            onStart={startGame}
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <GameControls
+            onDirectionChange={setDirection}
+            onReset={resetGame}
+            onStart={startGame}
+            gameStatus={gameStatus}
+          />
+        </motion.div>
       </div>
     </div>
   );

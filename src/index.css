@@ -1,29 +1,30 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 210 20% 98%;
+    --foreground: 222 84% 4.9%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 84% 4.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 221 83% 53%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary-foreground: 222 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
     --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent-foreground: 222 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -35,34 +36,32 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Snake game specific colors */
+    --snake-body: 221 83% 53%;
+    --snake-head: 221 83% 43%;
+    --snake-food: 346 84% 61%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 222 84% 4.9%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 222 84% 4.9%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 222 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
     --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary-foreground: 222 47.4% 11.2%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -97,5 +96,78 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Custom Snake Game Styles */
+.snake-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-size), 1fr);
+  grid-template-rows: repeat(var(--grid-size), 1fr);
+  gap: 1px;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05), 
+              0 1px 2px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(20px);
+}
+
+.snake-cell {
+  aspect-ratio: 1/1;
+  border-radius: 2px;
+  transition: all 0.1s ease-out;
+}
+
+.snake-food {
+  background-color: hsl(var(--snake-food));
+  border-radius: 50%;
+  transform-origin: center;
+  animation: pulse-soft 2s infinite ease-in-out;
+}
+
+.snake-body {
+  background-color: hsl(var(--snake-body));
+  border-radius: 4px;
+}
+
+.snake-head {
+  background-color: hsl(var(--snake-head));
+  border-radius: 4px;
+}
+
+.game-over-overlay {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  animation: appear 0.4s ease-out forwards;
+}
+
+.score-text {
+  animation: slide-up 0.5s ease-out forwards;
+}
+
+.control-button {
+  transition: all 0.2s ease;
+}
+
+.control-button:active {
+  transform: scale(0.95);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 640px) {
+  .snake-grid {
+    gap: 1px;
+  }
+  
+  .snake-cell {
+    border-radius: 1px;
   }
 }
