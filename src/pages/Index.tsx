@@ -44,13 +44,13 @@ const Index = () => {
   }, [gameStatus, resetGame]);
 
   return (
-    <div className={`min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300`}>
+    <div className={`min-h-screen flex flex-col items-center justify-center px-4 py-8 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300`}>
       <div className="w-full max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-8"
+          className="text-center mb-6"
         >
           <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">
             Snake Game
@@ -73,7 +73,7 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-6"
+          className="mb-4"
         >
           <ScoreBoard 
             score={score} 
@@ -83,38 +83,55 @@ const Index = () => {
           />
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <GameBoard
-            snake={snake}
-            food={food}
-            gridSize={gridSize}
-            gameStatus={gameStatus}
-            score={score}
-            highScore={highScore}
-            onReset={resetGame}
-            onStart={startGame}
-            direction={direction}
-          />
-        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+          <div className="md:col-span-2">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <GameBoard
+                snake={snake}
+                food={food}
+                gridSize={gridSize}
+                gameStatus={gameStatus}
+                score={score}
+                highScore={highScore}
+                onReset={resetGame}
+                onStart={startGame}
+                direction={direction}
+              />
+            </motion.div>
+          </div>
+          
+          <div className="md:col-span-1">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="glass-panel p-4 rounded-lg"
+            >
+              <h3 className="font-semibold text-lg mb-3 text-center text-slate-800 dark:text-slate-200">Game Controls</h3>
+              <GameControls
+                onDirectionChange={setDirection}
+                onReset={resetGame}
+                onStart={startGame}
+                onPause={pauseGame}
+                onSpeedChange={setCustomSpeed}
+                currentSpeed={speed}
+                gameStatus={gameStatus}
+              />
+            </motion.div>
+          </div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="mt-8 text-center text-xs text-slate-400 dark:text-slate-500"
         >
-          <GameControls
-            onDirectionChange={setDirection}
-            onReset={resetGame}
-            onStart={startGame}
-            onPause={pauseGame}
-            onSpeedChange={setCustomSpeed}
-            currentSpeed={speed}
-            gameStatus={gameStatus}
-          />
+          <p>Use keyboard arrows or WASD to control. Press P or Space to pause.</p>
         </motion.div>
       </div>
     </div>

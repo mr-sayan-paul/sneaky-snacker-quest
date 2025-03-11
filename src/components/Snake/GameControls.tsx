@@ -40,6 +40,75 @@ const GameControls: React.FC<GameControlsProps> = ({
   
   return (
     <div className="mt-8">
+      {/* Game control buttons (pause/play/restart) */}
+      <div className="flex justify-center gap-4 mb-6 max-w-[280px] mx-auto">
+        {gameStatus === 'PLAYING' && onPause && (
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full"
+          >
+            <Button 
+              variant="outline"
+              className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
+              onClick={onPause}
+            >
+              <Pause className="h-5 w-5 mr-2" />
+              Pause
+            </Button>
+          </motion.div>
+        )}
+        
+        {gameStatus === 'PAUSED' && (
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full"
+          >
+            <Button 
+              variant="outline"
+              className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
+              onClick={onStart}
+            >
+              <Play className="h-5 w-5 mr-2" />
+              Resume
+            </Button>
+          </motion.div>
+        )}
+        
+        {(gameStatus === 'IDLE' || gameStatus === 'GAME_OVER') && (
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full"
+          >
+            <Button 
+              variant="outline"
+              className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
+              onClick={onStart}
+            >
+              <Play className="h-5 w-5 mr-2" />
+              {gameStatus === 'IDLE' ? 'Start' : 'Play Again'}
+            </Button>
+          </motion.div>
+        )}
+        
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="w-full"
+        >
+          <Button 
+            variant="outline"
+            className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
+            onClick={onReset}
+          >
+            <RefreshCw className="h-5 w-5 mr-2" />
+            Restart
+          </Button>
+        </motion.div>
+      </div>
+      
       {/* Direction controls */}
       {(gameStatus === 'PLAYING' || gameStatus === 'PAUSED') && (
         <div className="flex flex-col items-center max-w-[280px] mx-auto">
@@ -100,139 +169,15 @@ const GameControls: React.FC<GameControlsProps> = ({
               </Button>
             </motion.div>
           </div>
-          
-          {/* Game control buttons (pause/play/restart) */}
-          <div className="flex justify-center mt-4 gap-4 w-full">
-            {gameStatus === 'PLAYING' && onPause && (
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full"
-              >
-                <Button 
-                  variant="outline"
-                  className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
-                  onClick={onPause}
-                >
-                  <Pause className="h-5 w-5 mr-2" />
-                  Pause
-                </Button>
-              </motion.div>
-            )}
-            
-            {gameStatus === 'PAUSED' && (
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full"
-              >
-                <Button 
-                  variant="outline"
-                  className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
-                  onClick={onStart}
-                >
-                  <Play className="h-5 w-5 mr-2" />
-                  Resume
-                </Button>
-              </motion.div>
-            )}
-            
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-full"
-            >
-              <Button 
-                variant="outline"
-                className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
-                onClick={onReset}
-              >
-                <RefreshCw className="h-5 w-5 mr-2" />
-                Restart
-              </Button>
-            </motion.div>
-          </div>
-          
-          {/* Speed control slider */}
-          {onSpeedChange && (
-            <div className="mt-6 w-full">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center">
-                  <Gauge className="h-4 w-4 mr-1" /> Speed
-                </span>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full"
-                >
-                  <FastForward className="h-3 w-3 mr-1 text-slate-700 dark:text-slate-300" />
-                  <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                    {speedValue}/10
-                  </span>
-                </motion.div>
-              </div>
-              <Slider
-                defaultValue={[speedValue]}
-                max={10}
-                min={1}
-                step={1}
-                onValueChange={(value) => {
-                  if (onSpeedChange) {
-                    // Convert slider value (1-10) back to speed (70-150ms)
-                    const newSpeed = 150 - ((value[0] - 1) / 9) * 80;
-                    onSpeedChange(Math.round(newSpeed));
-                  }
-                }}
-                className="w-full"
-              />
-            </div>
-          )}
-        </div>
-      )}
-      
-      {/* Game control buttons for non-playing states */}
-      {(gameStatus === 'IDLE' || gameStatus === 'GAME_OVER') && (
-        <div className="flex justify-center mt-4 gap-4">
-          {gameStatus === 'GAME_OVER' ? (
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button 
-                variant="outline"
-                size="lg"
-                className="control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
-                onClick={onReset}
-              >
-                <RefreshCw className="h-5 w-5 mr-2" />
-                Restart
-              </Button>
-            </motion.div>
-          ) : (
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button 
-                variant="outline"
-                size="lg"
-                className="control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
-                onClick={onStart}
-              >
-                <Play className="h-5 w-5 mr-2" />
-                Start
-              </Button>
-            </motion.div>
-          )}
         </div>
       )}
 
-      {/* Show speed control slider even in IDLE or GAME_OVER state */}
-      {(gameStatus === 'IDLE' || gameStatus === 'GAME_OVER') && onSpeedChange && (
+      {/* Speed control slider - always visible */}
+      {onSpeedChange && (
         <div className="mt-6 max-w-[280px] mx-auto">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center">
-              <Gauge className="h-4 w-4 mr-1" /> Initial Speed
+              <Gauge className="h-4 w-4 mr-1" /> {gameStatus === 'PLAYING' ? 'Speed' : 'Initial Speed'}
             </span>
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
@@ -252,11 +197,13 @@ const GameControls: React.FC<GameControlsProps> = ({
             step={1}
             onValueChange={(value) => {
               if (onSpeedChange) {
+                // Convert slider value (1-10) back to speed (70-150ms)
                 const newSpeed = 150 - ((value[0] - 1) / 9) * 80;
                 onSpeedChange(Math.round(newSpeed));
               }
             }}
             className="w-full"
+            disabled={gameStatus === 'PAUSED'}
           />
         </div>
       )}
