@@ -104,7 +104,8 @@ const SnakeSegment: React.FC<SnakeSegmentProps> = ({
   } else {
     // Snake body with color gradient based on position
     const opacity = 0.9 - (index / (totalLength * 2));
-    const hue = type === 'head' ? 'var(--snake-head)' : 'var(--snake-body)';
+    // Fix: Remove the incorrect type comparison and use a string value directly
+    const hue = 'var(--snake-body)';
     
     return (
       <motion.div
