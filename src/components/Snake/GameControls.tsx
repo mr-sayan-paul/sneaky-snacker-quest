@@ -14,6 +14,8 @@ import {
   Gauge,
   FastForward,
   Gamepad,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -25,6 +27,8 @@ interface GameControlsProps {
   onSpeedChange?: (speed: number) => void;
   gameStatus: 'IDLE' | 'PLAYING' | 'PAUSED' | 'GAME_OVER';
   currentSpeed?: number;
+  toggleTheme?: () => void;
+  isDarkMode?: boolean;
 }
 
 const GameControls: React.FC<GameControlsProps> = ({
@@ -35,6 +39,8 @@ const GameControls: React.FC<GameControlsProps> = ({
   onSpeedChange,
   gameStatus,
   currentSpeed = 150,
+  toggleTheme,
+  isDarkMode = false
 }) => {
   // Convert speed to slider value (slider shows 1-10, but speed is 70-150ms)
   const speedValue = Math.round(((150 - currentSpeed) / 80) * 9) + 1;
@@ -49,15 +55,53 @@ const GameControls: React.FC<GameControlsProps> = ({
     tap: { scale: 0.95 }
   };
   
+  const themeButtonVariants = {
+    hover: { 
+      scale: 1.1, 
+      rotate: isDarkMode ? -30 : 30,
+      transition: { type: "spring", stiffness: 400, damping: 10 }
+    },
+    tap: { scale: 0.9 }
+  };
+  
   return (
     <div className="mt-4">
-      {/* Game status and control buttons in a cleaner layout */}
+      {/* Theme toggle positioned at top */}
+      {toggleTheme && (
+        <motion.div 
+          className="flex justify-center mb-4"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <motion.div
+            variants={themeButtonVariants}
+            whileHover="hover"
+            whileTap="tap"
+          >
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleTheme}
+              className="bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all"
+              aria-label="Toggle theme"
+            >
+              {isDarkMode ? (
+                <Sun className="h-5 w-5 text-yellow-500" />
+              ) : (
+                <Moon className="h-5 w-5 text-slate-700" />
+              )}
+            </Button>
+          </motion.div>
+        </motion.div>
+      )}
+      
+      {/* Game status indicator */}
       <motion.div 
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         className="mb-5 flex flex-col gap-3"
       >
-        {/* Game status indicator */}
         <div className="flex justify-center mb-2">
           <div className="inline-block px-3 py-1 rounded-full text-sm bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium">
             <Gamepad className="inline-block w-4 h-4 mr-1" />
@@ -75,6 +119,7 @@ const GameControls: React.FC<GameControlsProps> = ({
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
+              layout
             >
               <Button 
                 variant="outline"
@@ -92,6 +137,7 @@ const GameControls: React.FC<GameControlsProps> = ({
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
+              layout
             >
               <Button 
                 variant="outline"
@@ -109,6 +155,7 @@ const GameControls: React.FC<GameControlsProps> = ({
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
+              layout
             >
               <Button 
                 variant="outline"
@@ -125,6 +172,7 @@ const GameControls: React.FC<GameControlsProps> = ({
             variants={buttonVariants}
             whileHover="hover"
             whileTap="tap"
+            layout
           >
             <Button 
               variant="outline"
@@ -146,6 +194,7 @@ const GameControls: React.FC<GameControlsProps> = ({
             whileHover="hover"
             whileTap="tap"
             className="mb-2"
+            layout
           >
             <Button
               variant="outline"
@@ -162,6 +211,7 @@ const GameControls: React.FC<GameControlsProps> = ({
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
+              layout
             >
               <Button
                 variant="outline"
@@ -177,6 +227,7 @@ const GameControls: React.FC<GameControlsProps> = ({
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
+              layout
             >
               <Button
                 variant="outline"
@@ -193,6 +244,7 @@ const GameControls: React.FC<GameControlsProps> = ({
             variants={buttonVariants}
             whileHover="hover"
             whileTap="tap"
+            layout
           >
             <Button
               variant="outline"

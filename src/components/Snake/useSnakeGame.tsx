@@ -17,6 +17,7 @@ interface GameState {
   gridSize: number;
   speed: number;
   baseSpeed: number;
+  lastRender: number;
 }
 
 export const useSnakeGame = (initialGridSize = 20) => {
@@ -29,7 +30,7 @@ export const useSnakeGame = (initialGridSize = 20) => {
 
   // Initialize game state
   const [state, setState] = useState<GameState>({
-    snake: [{ x: 10, y: 10 }],
+    snake: [{ x: Math.floor(initialGridSize / 2), y: Math.floor(initialGridSize / 2) }],
     food: { x: 5, y: 5 },
     direction: null,
     nextDirection: null,
@@ -39,26 +40,48 @@ export const useSnakeGame = (initialGridSize = 20) => {
     gridSize: initialGridSize,
     speed: 150, // Initial speed in ms
     baseSpeed: 150, // Base speed that can be adjusted by the slider
+    lastRender: 0,
   });
 
   // Game loop reference
   const gameLoopRef = useRef<number | null>(null);
+  
+  // Store refs for performance optimization
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
-  // Generate random food position
+  // Generate random food position - optimized
   const generateFood = useCallback((snake: Position[]): Position => {
-    const { gridSize } = state;
-    let newFood: Position;
+    const gridSize = stateRef.current.gridSize;
+    const gridMatrix = new Array(gridSize * gridSize).fill(false);
     
-    do {
-      newFood = {
-        x: Math.floor(Math.random() * gridSize),
-        y: Math.floor(Math.random() * gridSize),
-      };
-      // Ensure food doesn't appear on snake
-    } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+    // Mark snake positions in the matrix
+    snake.forEach(segment => {
+      const index = segment.y * gridSize + segment.x;
+      if (index >= 0 && index < gridSize * gridSize) {
+        gridMatrix[index] = true;
+      }
+    });
     
-    return newFood;
-  }, [state.gridSize]);
+    // Find all empty positions
+    const emptyPositions: number[] = [];
+    gridMatrix.forEach((occupied, index) => {
+      if (!occupied) {
+        emptyPositions.push(index);
+      }
+    });
+    
+    // Select a random empty position
+    if (emptyPositions.length === 0) return { x: 0, y: 0 }; // Fallback
+    
+    const randomIndex = Math.floor(Math.random() * emptyPositions.length);
+    const position = emptyPositions[randomIndex];
+    
+    return {
+      x: position % gridSize,
+      y: Math.floor(position / gridSize)
+    };
+  }, []);
 
   // Allow user to set a custom base speed
   const setCustomSpeed = useCallback((newBaseSpeed: number) => {
@@ -72,7 +95,7 @@ export const useSnakeGame = (initialGridSize = 20) => {
 
   // Reset game to initial state
   const resetGame = useCallback(() => {
-    const center = Math.floor(state.gridSize / 2);
+    const center = Math.floor(stateRef.current.gridSize / 2);
     setState(prev => ({
       ...prev,
       snake: [{ x: center, y: center }],
@@ -82,28 +105,30 @@ export const useSnakeGame = (initialGridSize = 20) => {
       score: 0,
       gameStatus: 'IDLE',
       speed: prev.baseSpeed, // Reset speed to base speed
+      lastRender: 0,
     }));
     
     if (gameLoopRef.current !== null) {
       cancelAnimationFrame(gameLoopRef.current);
       gameLoopRef.current = null;
     }
-  }, [state.gridSize, generateFood]);
+  }, [generateFood]);
 
   // Start the game
   const startGame = useCallback(() => {
-    if (state.gameStatus === 'IDLE' || state.gameStatus === 'PAUSED') {
+    if (stateRef.current.gameStatus === 'IDLE' || stateRef.current.gameStatus === 'PAUSED') {
       setState(prev => ({
         ...prev,
         gameStatus: 'PLAYING',
         direction: prev.direction || 'RIGHT', // Default to RIGHT if no direction
+        lastRender: 0,
       }));
     }
-  }, [state.gameStatus]);
+  }, []);
 
   // Pause the game
   const pauseGame = useCallback(() => {
-    if (state.gameStatus === 'PLAYING') {
+    if (stateRef.current.gameStatus === 'PLAYING') {
       setState(prev => ({
         ...prev,
         gameStatus: 'PAUSED',
@@ -114,23 +139,23 @@ export const useSnakeGame = (initialGridSize = 20) => {
         gameLoopRef.current = null;
       }
     }
-  }, [state.gameStatus]);
+  }, []);
 
   // Handle game over
   const handleGameOver = useCallback(() => {
-    setState(prev => {
-      // Update high score if current score is higher
-      const newHighScore = Math.max(prev.score, prev.highScore);
-      if (newHighScore > prev.highScore) {
-        localStorage.setItem('snakeHighScore', newHighScore.toString());
-      }
-      
-      return {
-        ...prev,
-        gameStatus: 'GAME_OVER',
-        highScore: newHighScore,
-      };
-    });
+    const currentState = stateRef.current;
+    
+    // Update high score if current score is higher
+    const newHighScore = Math.max(currentState.score, currentState.highScore);
+    if (newHighScore > currentState.highScore) {
+      localStorage.setItem('snakeHighScore', newHighScore.toString());
+    }
+    
+    setState(prev => ({
+      ...prev,
+      gameStatus: 'GAME_OVER',
+      highScore: newHighScore,
+    }));
     
     if (gameLoopRef.current !== null) {
       cancelAnimationFrame(gameLoopRef.current);
@@ -160,97 +185,97 @@ export const useSnakeGame = (initialGridSize = 20) => {
     });
   }, []);
 
-  // Move the snake
+  // Move the snake - optimized
   const moveSnake = useCallback(() => {
-    setState(prev => {
-      if (prev.gameStatus !== 'PLAYING') return prev;
-      
-      // Use nextDirection if available, otherwise use current direction
-      const currentDirection = prev.nextDirection || prev.direction;
-      if (!currentDirection) return prev;
-      
-      const head = { ...prev.snake[0] };
-      
-      // Calculate new head position based on direction
-      switch (currentDirection) {
-        case 'UP':
-          head.y -= 1;
-          break;
-        case 'DOWN':
-          head.y += 1;
-          break;
-        case 'LEFT':
-          head.x -= 1;
-          break;
-        case 'RIGHT':
-          head.x += 1;
-          break;
-        default:
-          break;
+    const currentState = stateRef.current;
+    if (currentState.gameStatus !== 'PLAYING') return;
+    
+    // Use nextDirection if available, otherwise use current direction
+    const currentDirection = currentState.nextDirection || currentState.direction;
+    if (!currentDirection) return;
+    
+    const head = { ...currentState.snake[0] };
+    
+    // Calculate new head position based on direction
+    switch (currentDirection) {
+      case 'UP':
+        head.y -= 1;
+        break;
+      case 'DOWN':
+        head.y += 1;
+        break;
+      case 'LEFT':
+        head.x -= 1;
+        break;
+      case 'RIGHT':
+        head.x += 1;
+        break;
+      default:
+        break;
+    }
+    
+    // Check for collisions with walls
+    if (
+      head.x < 0 ||
+      head.y < 0 ||
+      head.x >= currentState.gridSize ||
+      head.y >= currentState.gridSize
+    ) {
+      // Game over if hit wall
+      handleGameOver();
+      return;
+    }
+    
+    // Check for collisions with self (except tail which will move)
+    for (let i = 0; i < currentState.snake.length - 1; i++) {
+      if (currentState.snake[i].x === head.x && currentState.snake[i].y === head.y) {
+        // Game over if hit self
+        handleGameOver();
+        return;
       }
-      
-      // Check for collisions with walls
-      if (
-        head.x < 0 ||
-        head.y < 0 ||
-        head.x >= prev.gridSize ||
-        head.y >= prev.gridSize
-      ) {
-        // Game over if hit wall
-        setTimeout(() => handleGameOver(), 0);
-        return prev;
+    }
+    
+    // Create new snake array with new head
+    const newSnake = [head, ...currentState.snake];
+    
+    // Check if snake eats food
+    let newFood = currentState.food;
+    let newScore = currentState.score;
+    let newSpeed = currentState.speed;
+    
+    const ateFood = head.x === currentState.food.x && head.y === currentState.food.y;
+    
+    if (ateFood) {
+      // Generate new food
+      newFood = generateFood(newSnake);
+      // Increase score
+      newScore = currentState.score + 1;
+      // Increase speed every 5 points, with a minimum speed of 70ms
+      if (newScore % 5 === 0) {
+        newSpeed = Math.max(70, currentState.baseSpeed - Math.floor(newScore / 5) * 10);
       }
-      
-      // Check for collisions with self (except tail which will move)
-      for (let i = 0; i < prev.snake.length - 1; i++) {
-        if (prev.snake[i].x === head.x && prev.snake[i].y === head.y) {
-          // Game over if hit self
-          setTimeout(() => handleGameOver(), 0);
-          return prev;
-        }
-      }
-      
-      // Create new snake array with new head
-      const newSnake = [head, ...prev.snake];
-      
-      // Check if snake eats food
-      let newFood = prev.food;
-      let newScore = prev.score;
-      let newSpeed = prev.speed;
-      
-      const ateFood = head.x === prev.food.x && head.y === prev.food.y;
-      
-      if (ateFood) {
-        // Generate new food
-        newFood = generateFood(newSnake);
-        // Increase score
-        newScore = prev.score + 1;
-        // Increase speed every 5 points, with a minimum speed of 70ms
-        // Use baseSpeed as the starting point for speed calculations
-        if (newScore % 5 === 0) {
-          newSpeed = Math.max(70, prev.baseSpeed - Math.floor(newScore / 5) * 10);
-        }
-      } else {
-        // Remove tail if didn't eat food
-        newSnake.pop();
-      }
-      
-      return {
-        ...prev,
-        snake: newSnake,
-        food: newFood,
-        direction: currentDirection,
-        nextDirection: null, // Reset next direction after applying it
-        score: newScore,
-        speed: newSpeed,
-      };
-    });
+    } else {
+      // Remove tail if didn't eat food
+      newSnake.pop();
+    }
+    
+    setState(prev => ({
+      ...prev,
+      snake: newSnake,
+      food: newFood,
+      direction: currentDirection,
+      nextDirection: null, // Reset next direction after applying it
+      score: newScore,
+      speed: newSpeed,
+    }));
   }, [generateFood, handleGameOver]);
 
   // Set up key listeners for controls
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (state.gameStatus === 'IDLE' && (
+      const currentState = stateRef.current;
+      
+      if (currentState.gameStatus === 'IDLE' && (
         e.key === 'ArrowUp' || 
         e.key === 'ArrowDown' || 
         e.key === 'ArrowLeft' || 
@@ -265,14 +290,15 @@ export const useSnakeGame = (initialGridSize = 20) => {
       
       // Add pause functionality for 'p' or 'space' key
       if (e.key === 'p' || e.key === ' ') {
-        if (state.gameStatus === 'PLAYING') {
+        e.preventDefault(); // Prevent spacebar from scrolling
+        if (currentState.gameStatus === 'PLAYING') {
           pauseGame();
-        } else if (state.gameStatus === 'PAUSED') {
+        } else if (currentState.gameStatus === 'PAUSED') {
           startGame();
         }
       }
       
-      if (state.gameStatus !== 'PLAYING') return;
+      if (currentState.gameStatus !== 'PLAYING') return;
       
       switch (e.key) {
         case 'ArrowUp':
@@ -300,29 +326,37 @@ export const useSnakeGame = (initialGridSize = 20) => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [state.gameStatus, startGame, pauseGame, setDirection]);
+  }, [setDirection, startGame, pauseGame]);
 
-  // Game loop
+  // Game loop - optimized performance
   useEffect(() => {
     if (state.gameStatus !== 'PLAYING') return;
     
-    let lastTime = 0;
-    const animationFrame = (time: number) => {
-      if (time - lastTime > state.speed) {
+    // Use request animation frame for consistent performance
+    const animateGame = (timestamp: number) => {
+      // Calculate time elapsed since last frame
+      const elapsed = timestamp - stateRef.current.lastRender;
+      
+      // Only update if enough time has passed (based on speed)
+      if (elapsed > stateRef.current.speed) {
         moveSnake();
-        lastTime = time;
+        setState(prev => ({ ...prev, lastRender: timestamp }));
       }
-      gameLoopRef.current = requestAnimationFrame(animationFrame);
+      
+      // Request next frame
+      gameLoopRef.current = requestAnimationFrame(animateGame);
     };
     
-    gameLoopRef.current = requestAnimationFrame(animationFrame);
+    // Start the animation loop
+    gameLoopRef.current = requestAnimationFrame(animateGame);
     
+    // Cleanup on unmount
     return () => {
       if (gameLoopRef.current !== null) {
         cancelAnimationFrame(gameLoopRef.current);
       }
     };
-  }, [state.gameStatus, state.speed, moveSnake]);
+  }, [state.gameStatus, moveSnake]);
 
   return {
     snake: state.snake,

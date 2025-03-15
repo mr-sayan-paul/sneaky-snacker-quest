@@ -93,8 +93,6 @@ const Index = () => {
           <ScoreBoard 
             score={score} 
             highScore={highScore} 
-            toggleTheme={toggleTheme}
-            isDarkMode={isDarkMode}
           />
         </motion.div>
 
@@ -138,6 +136,8 @@ const Index = () => {
                 onSpeedChange={setCustomSpeed}
                 currentSpeed={speed}
                 gameStatus={gameStatus}
+                toggleTheme={toggleTheme}
+                isDarkMode={isDarkMode}
               />
             </motion.div>
           </div>

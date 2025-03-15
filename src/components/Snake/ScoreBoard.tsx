@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Moon, Sun, Trophy, Star, Zap } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Trophy, Star, Zap } from 'lucide-react';
 
 interface ScoreBoardProps {
   score: number;
@@ -13,9 +12,7 @@ interface ScoreBoardProps {
 
 const ScoreBoard: React.FC<ScoreBoardProps> = ({ 
   score, 
-  highScore, 
-  toggleTheme, 
-  isDarkMode = false 
+  highScore
 }) => {
   const scoreVariants = {
     initial: { scale: 0.95, opacity: 0.9 },
@@ -27,20 +24,11 @@ const ScoreBoard: React.FC<ScoreBoardProps> = ({
     }
   };
 
-  const themeButtonVariants = {
-    hover: { 
-      scale: 1.1, 
-      rotate: isDarkMode ? -30 : 30,
-      transition: { type: "spring", stiffness: 400, damping: 10 }
-    },
-    tap: { scale: 0.9 }
-  };
-
   return (
-    <div className="flex justify-between items-center w-full max-w-[500px] mx-auto mb-4">
+    <div className="flex flex-col items-start w-full max-w-[500px] mx-auto mb-4 gap-2">
       <motion.div 
         key={`score-${score}`}
-        className="glass-panel py-3 px-5 rounded-lg shadow-lg"
+        className="glass-panel py-2 px-4 rounded-lg shadow-lg"
         variants={scoreVariants}
         initial="initial"
         animate="animate"
@@ -53,28 +41,8 @@ const ScoreBoard: React.FC<ScoreBoardProps> = ({
         <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{score}</p>
       </motion.div>
       
-      <motion.div
-        variants={themeButtonVariants}
-        whileHover="hover"
-        whileTap="tap"
-      >
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={toggleTheme}
-          className="bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all"
-          aria-label="Toggle theme"
-        >
-          {isDarkMode ? (
-            <Sun className="h-5 w-5 text-yellow-500" />
-          ) : (
-            <Moon className="h-5 w-5 text-slate-700" />
-          )}
-        </Button>
-      </motion.div>
-      
       <motion.div 
-        className="glass-panel py-3 px-5 rounded-lg shadow-lg"
+        className="glass-panel py-2 px-4 rounded-lg shadow-lg"
         variants={scoreVariants}
         initial="initial"
         animate="animate"
