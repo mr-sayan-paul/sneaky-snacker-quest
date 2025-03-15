@@ -25,10 +25,10 @@ const ScoreBoard: React.FC<ScoreBoardProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-start w-full max-w-[500px] mx-auto mb-4 gap-2">
+    <div className="flex flex-col w-full gap-3">
       <motion.div 
         key={`score-${score}`}
-        className="glass-panel py-2 px-4 rounded-lg shadow-lg"
+        className="glass-panel py-2 px-4 rounded-lg shadow-lg w-full"
         variants={scoreVariants}
         initial="initial"
         animate="animate"
@@ -42,7 +42,7 @@ const ScoreBoard: React.FC<ScoreBoardProps> = ({
       </motion.div>
       
       <motion.div 
-        className="glass-panel py-2 px-4 rounded-lg shadow-lg"
+        className="glass-panel py-2 px-4 rounded-lg shadow-lg w-full"
         variants={scoreVariants}
         initial="initial"
         animate="animate"

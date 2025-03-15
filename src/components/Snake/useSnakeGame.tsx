@@ -50,6 +50,9 @@ export const useSnakeGame = (initialGridSize = 20) => {
   const stateRef = useRef(state);
   stateRef.current = state;
 
+  // Track pending operations to prevent UI flashing
+  const pendingOperationRef = useRef(false);
+
   // Generate random food position - optimized
   const generateFood = useCallback((snake: Position[]): Position => {
     const gridSize = stateRef.current.gridSize;
@@ -95,6 +98,10 @@ export const useSnakeGame = (initialGridSize = 20) => {
 
   // Reset game to initial state
   const resetGame = useCallback(() => {
+    // Prevent multiple reset operations
+    if (pendingOperationRef.current) return;
+    pendingOperationRef.current = true;
+    
     // Cancel any existing animation frame first to prevent flashing
     if (gameLoopRef.current !== null) {
       cancelAnimationFrame(gameLoopRef.current);
@@ -107,35 +114,52 @@ export const useSnakeGame = (initialGridSize = 20) => {
     // Generate food before setting state to ensure it's not on the snake
     const initialFood = generateFood(initialSnake);
     
-    setState(prev => ({
-      ...prev,
-      snake: initialSnake,
-      food: initialFood,
-      direction: null,
-      nextDirection: null,
-      score: 0,
-      gameStatus: 'IDLE',
-      speed: prev.baseSpeed, // Reset speed to base speed
-      lastRender: 0,
-    }));
+    // Use this approach to avoid UI flashing during state transition
+    const updateState = () => {
+      setState(prev => ({
+        ...prev,
+        snake: initialSnake,
+        food: initialFood,
+        direction: null,
+        nextDirection: null,
+        score: 0,
+        gameStatus: 'IDLE',
+        speed: prev.baseSpeed, // Reset speed to base speed
+        lastRender: 0,
+      }));
+      
+      pendingOperationRef.current = false;
+    };
+
+    // Perform the update in a microtask to ensure clean rendering
+    Promise.resolve().then(updateState);
   }, [generateFood]);
 
   // Start the game
   const startGame = useCallback(() => {
+    // Prevent multiple start operations
+    if (pendingOperationRef.current) return;
+    pendingOperationRef.current = true;
+    
     // Also cancel any existing animation frame first
     if (gameLoopRef.current !== null) {
       cancelAnimationFrame(gameLoopRef.current);
       gameLoopRef.current = null;
     }
     
-    if (stateRef.current.gameStatus === 'IDLE' || stateRef.current.gameStatus === 'PAUSED') {
-      // Use a single setState to minimize renders
-      setState(prev => ({
-        ...prev,
-        gameStatus: 'PLAYING',
-        direction: prev.direction || 'RIGHT', // Default to RIGHT if no direction
-        lastRender: 0,
-      }));
+    if (stateRef.current.gameStatus === 'IDLE' || stateRef.current.gameStatus === 'PAUSED' || stateRef.current.gameStatus === 'GAME_OVER') {
+      // Use a microtask to ensure clean rendering
+      Promise.resolve().then(() => {
+        // Use a single setState to minimize renders
+        setState(prev => ({
+          ...prev,
+          gameStatus: 'PLAYING',
+          direction: prev.direction || 'RIGHT', // Default to RIGHT if no direction
+          lastRender: 0,
+        }));
+        
+        pendingOperationRef.current = false;
+      });
     }
   }, []);
 

@@ -30,10 +30,19 @@ const Index = () => {
 
   // Memoized reset handler to prevent flashing
   const handleReset = useCallback(() => {
-    // Small delay to allow animations to complete
-    setTimeout(() => {
-      resetGame();
-    }, 50);
+    // Ensure we don't modify the DOM during animation frames to prevent flash
+    if (document.startViewTransition) {
+      document.startViewTransition(() => {
+        setTimeout(() => {
+          resetGame();
+        }, 50);
+      });
+    } else {
+      // Small delay to allow animations to complete
+      setTimeout(() => {
+        resetGame();
+      }, 50);
+    }
   }, [resetGame]);
 
   // Adjust layout on window resize - debounced
@@ -107,18 +116,6 @@ const Index = () => {
           )}
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-4"
-        >
-          <ScoreBoard 
-            score={score} 
-            highScore={highScore} 
-          />
-        </motion.div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 items-start">
           <div className="md:col-span-2">
             <motion.div
@@ -142,7 +139,7 @@ const Index = () => {
             </motion.div>
           </div>
           
-          <div className="md:col-span-1">
+          <div className="md:col-span-1 flex flex-col gap-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -161,6 +158,20 @@ const Index = () => {
                 gameStatus={gameStatus}
                 toggleTheme={toggleTheme}
                 isDarkMode={isDarkMode}
+              />
+            </motion.div>
+            
+            {/* Scoreboards moved under game controls */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="glass-panel p-4 rounded-lg"
+            >
+              <h3 className="font-semibold text-lg mb-3 text-center text-slate-800 dark:text-slate-200">Score Board</h3>
+              <ScoreBoard 
+                score={score} 
+                highScore={highScore} 
               />
             </motion.div>
           </div>
