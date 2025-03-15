@@ -95,11 +95,22 @@ export const useSnakeGame = (initialGridSize = 20) => {
 
   // Reset game to initial state
   const resetGame = useCallback(() => {
+    // Cancel any existing animation frame first to prevent flashing
+    if (gameLoopRef.current !== null) {
+      cancelAnimationFrame(gameLoopRef.current);
+      gameLoopRef.current = null;
+    }
+    
     const center = Math.floor(stateRef.current.gridSize / 2);
+    const initialSnake = [{ x: center, y: center }];
+    
+    // Generate food before setting state to ensure it's not on the snake
+    const initialFood = generateFood(initialSnake);
+    
     setState(prev => ({
       ...prev,
-      snake: [{ x: center, y: center }],
-      food: generateFood([{ x: center, y: center }]),
+      snake: initialSnake,
+      food: initialFood,
       direction: null,
       nextDirection: null,
       score: 0,
@@ -107,16 +118,18 @@ export const useSnakeGame = (initialGridSize = 20) => {
       speed: prev.baseSpeed, // Reset speed to base speed
       lastRender: 0,
     }));
-    
-    if (gameLoopRef.current !== null) {
-      cancelAnimationFrame(gameLoopRef.current);
-      gameLoopRef.current = null;
-    }
   }, [generateFood]);
 
   // Start the game
   const startGame = useCallback(() => {
+    // Also cancel any existing animation frame first
+    if (gameLoopRef.current !== null) {
+      cancelAnimationFrame(gameLoopRef.current);
+      gameLoopRef.current = null;
+    }
+    
     if (stateRef.current.gameStatus === 'IDLE' || stateRef.current.gameStatus === 'PAUSED') {
+      // Use a single setState to minimize renders
       setState(prev => ({
         ...prev,
         gameStatus: 'PLAYING',
@@ -163,7 +176,7 @@ export const useSnakeGame = (initialGridSize = 20) => {
     }
   }, []);
 
-  // Set direction based on key press
+  // Set direction based on key press - debounced to prevent rapid changes
   const setDirection = useCallback((newDirection: Direction) => {
     if (!newDirection) return;
     
@@ -328,9 +341,15 @@ export const useSnakeGame = (initialGridSize = 20) => {
     };
   }, [setDirection, startGame, pauseGame]);
 
-  // Game loop - optimized performance
+  // Game loop with optimized requestAnimationFrame
   useEffect(() => {
     if (state.gameStatus !== 'PLAYING') return;
+    
+    // Cleanup any existing animation frame to prevent duplicates
+    if (gameLoopRef.current !== null) {
+      cancelAnimationFrame(gameLoopRef.current);
+      gameLoopRef.current = null;
+    }
     
     // Use request animation frame for consistent performance
     const animateGame = (timestamp: number) => {
@@ -343,17 +362,20 @@ export const useSnakeGame = (initialGridSize = 20) => {
         setState(prev => ({ ...prev, lastRender: timestamp }));
       }
       
-      // Request next frame
-      gameLoopRef.current = requestAnimationFrame(animateGame);
+      // Request next frame only if still playing
+      if (stateRef.current.gameStatus === 'PLAYING') {
+        gameLoopRef.current = requestAnimationFrame(animateGame);
+      }
     };
     
     // Start the animation loop
     gameLoopRef.current = requestAnimationFrame(animateGame);
     
-    // Cleanup on unmount
+    // Cleanup on unmount or status change
     return () => {
       if (gameLoopRef.current !== null) {
         cancelAnimationFrame(gameLoopRef.current);
+        gameLoopRef.current = null;
       }
     };
   }, [state.gameStatus, moveSnake]);

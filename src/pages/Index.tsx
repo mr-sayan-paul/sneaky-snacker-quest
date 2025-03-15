@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useSnakeGame } from '@/components/Snake/useSnakeGame';
 import GameBoard from '@/components/Snake/GameBoard';
 import GameControls from '@/components/Snake/GameControls';
@@ -28,20 +28,43 @@ const Index = () => {
     setCustomSpeed,
   } = useSnakeGame(gridSize);
 
-  // Adjust layout on window resize
+  // Memoized reset handler to prevent flashing
+  const handleReset = useCallback(() => {
+    // Small delay to allow animations to complete
+    setTimeout(() => {
+      resetGame();
+    }, 50);
+  }, [resetGame]);
+
+  // Adjust layout on window resize - debounced
   useEffect(() => {
+    let resizeTimeout: number;
+    
     const handleResize = () => {
-      // Simply trigger a re-render
+      // Clear any existing timeout to debounce the resize event
+      if (resizeTimeout) {
+        window.clearTimeout(resizeTimeout);
+      }
+      
+      // Only reset if currently playing
       if (gameStatus === 'PLAYING') {
-        resetGame();
+        pauseGame();
+        
+        // Use timeout to debounce and prevent flashing
+        resizeTimeout = window.setTimeout(() => {
+          resetGame();
+        }, 100);
       }
     };
 
     window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);
+      if (resizeTimeout) {
+        window.clearTimeout(resizeTimeout);
+      }
     };
-  }, [gameStatus, resetGame]);
+  }, [gameStatus, resetGame, pauseGame]);
 
   return (
     <div className={`min-h-screen flex flex-col items-center justify-center px-4 py-6 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300`}>
@@ -112,7 +135,7 @@ const Index = () => {
                 gameStatus={gameStatus}
                 score={score}
                 highScore={highScore}
-                onReset={resetGame}
+                onReset={handleReset}
                 onStart={startGame}
                 direction={direction}
               />
@@ -130,7 +153,7 @@ const Index = () => {
               <h3 className="font-semibold text-lg mb-3 text-center text-slate-800 dark:text-slate-200">Game Controls</h3>
               <GameControls
                 onDirectionChange={setDirection}
-                onReset={resetGame}
+                onReset={handleReset}
                 onStart={startGame}
                 onPause={pauseGame}
                 onSpeedChange={setCustomSpeed}

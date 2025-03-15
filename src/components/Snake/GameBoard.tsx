@@ -111,21 +111,29 @@ const GameBoard: React.FC<GameBoardProps> = ({
         />
       </div>
       
-      {/* Game over, paused, or start overlay */}
-      <AnimatePresence>
+      {/* Game over, paused, or start overlay - improved transitions */}
+      <AnimatePresence mode="wait">
         {gameStatus !== 'PLAYING' && (
           <motion.div 
+            key={`overlay-${gameStatus}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className={`absolute inset-0 flex flex-col items-center justify-center game-over-overlay dark:bg-slate-900/85 ${gameStatus === 'PAUSED' ? 'paused-overlay' : ''}`}
           >
             {gameStatus === 'GAME_OVER' ? (
-              <div className="text-center space-y-6">
+              <motion.div 
+                className="text-center space-y-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.1 }}
+              >
                 <motion.h2 
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.4 }}
+                  transition={{ duration: 0.3 }}
                   className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white"
                 >
                   Game Over
@@ -134,7 +142,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   <motion.div
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.4, delay: 0.1 }}
+                    transition={{ duration: 0.3, delay: 0.1 }}
                     className="flex items-center justify-center gap-2"
                   >
                     <Flame className="h-5 w-5 text-red-500" />
@@ -145,7 +153,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   <motion.div
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.4, delay: 0.2 }}
+                    transition={{ duration: 0.3, delay: 0.2 }}
                     className="flex items-center justify-center gap-2"
                   >
                     <Trophy className="h-5 w-5 text-yellow-500" />
@@ -157,7 +165,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.4, delay: 0.3 }}
+                  transition={{ duration: 0.3, delay: 0.3 }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -171,9 +179,15 @@ const GameBoard: React.FC<GameBoardProps> = ({
                     Play Again
                   </Button>
                 </motion.div>
-              </div>
+              </motion.div>
             ) : gameStatus === 'PAUSED' ? (
-              <div className="text-center space-y-6">
+              <motion.div 
+                className="text-center space-y-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.1 }}
+              >
                 <motion.div 
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1, rotate: [0, 10, 0, -10, 0] }}
@@ -210,15 +224,21 @@ const GameBoard: React.FC<GameBoardProps> = ({
                     Resume Game
                   </Button>
                 </motion.div>
-              </div>
+              </motion.div>
             ) : (
-              <div className="text-center space-y-6">
+              <motion.div 
+                className="text-center space-y-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.1 }}
+              >
                 <motion.h2 
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ 
                     scale: 1, 
                     opacity: 1,
-                    transition: { duration: 0.5 }
+                    transition: { duration: 0.3 }
                   }}
                   className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent"
                 >
@@ -227,7 +247,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 <motion.p 
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.4, delay: 0.1 }}
+                  transition={{ duration: 0.3, delay: 0.1 }}
                   className="text-lg text-slate-700 dark:text-slate-300 max-w-xs mx-auto"
                 >
                   Use arrow keys or WASD to move the snake. Eat food to grow longer.
@@ -235,7 +255,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.4, delay: 0.2 }}
+                  transition={{ duration: 0.3, delay: 0.2 }}
                   whileHover={{ scale: 1.05, y: -5 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -249,7 +269,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                     Start Game
                   </Button>
                 </motion.div>
-              </div>
+              </motion.div>
             )}
           </motion.div>
         )}
