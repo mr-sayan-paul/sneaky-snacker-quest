@@ -44,20 +44,28 @@ const Index = () => {
   }, [gameStatus, resetGame]);
 
   return (
-    <div className={`min-h-screen flex flex-col items-center justify-center px-4 py-8 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300`}>
+    <div className={`min-h-screen flex flex-col items-center justify-center px-4 py-6 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300`}>
       <div className="w-full max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-6"
+          className="text-center mb-4"
         >
           <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">
             <motion.span 
               initial={{ scale: 1 }}
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-              className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent"
+              animate={{ 
+                scale: [1, 1.05, 1],
+                rotate: [0, 1, 0, -1, 0], 
+              }}
+              transition={{ 
+                duration: 2.5, 
+                repeat: Infinity, 
+                repeatType: "reverse",
+                ease: "easeInOut"
+              }}
+              className="inline-block bg-gradient-to-r from-blue-600 via-purple-500 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent bg-size-200 animate-gradient"
             >
               Snake Game
             </motion.span>
@@ -90,7 +98,7 @@ const Index = () => {
           />
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 items-start">
           <div className="md:col-span-2">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -139,7 +147,7 @@ const Index = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="mt-8 text-center text-xs text-slate-400 dark:text-slate-500"
+          className="mt-6 text-center text-xs text-slate-400 dark:text-slate-500"
         >
           <p>Use keyboard arrows or WASD to control. Press P or Space to pause.</p>
         </motion.div>

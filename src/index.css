@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -108,6 +109,7 @@
               0 1px 2px rgba(0, 0, 0, 0.03);
   border: 1px solid rgba(0, 0, 0, 0.06);
   backdrop-filter: blur(20px);
+  transition: all 0.3s ease-in-out;
 }
 
 .dark .snake-grid {
@@ -119,26 +121,30 @@
 
 .snake-cell {
   aspect-ratio: 1/1;
-  border-radius: 2px;
-  transition: all 0.1s ease-out;
+  border-radius: 3px;
+  transition: all 0.15s ease-out;
 }
 
 .snake-food {
   background-color: hsl(var(--snake-food));
   border-radius: 50%;
   transform-origin: center;
-  animation: pulse-soft 2s infinite ease-in-out;
+  animation: pulse-food 2s infinite ease-in-out;
+  box-shadow: 0 0 10px rgba(255, 0, 128, 0.3);
 }
 
 .snake-body {
   background-color: hsl(var(--snake-body));
   border-radius: 4px;
+  transition: transform 0.15s ease-out, opacity 0.15s ease-out;
 }
 
 .snake-head {
   background-color: hsl(var(--snake-head));
   border-radius: 6px;
   position: relative;
+  z-index: 10;
+  transition: transform 0.15s ease-out, opacity 0.15s ease-out;
 }
 
 .snake-tail {
@@ -218,6 +224,19 @@
   
   .snake-cell {
     border-radius: 1px;
+  }
+}
+
+@keyframes pulse-food {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(255, 0, 128, 0.3);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(255, 0, 128, 0.5);
   }
 }
 

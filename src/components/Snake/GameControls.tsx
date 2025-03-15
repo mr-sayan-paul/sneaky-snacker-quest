@@ -51,34 +51,34 @@ const GameControls: React.FC<GameControlsProps> = ({
   
   return (
     <div className="mt-4">
-      {/* Game status text with animation */}
+      {/* Game status and control buttons in a cleaner layout */}
       <motion.div 
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-3 flex justify-center"
+        className="mb-5 flex flex-col gap-3"
       >
-        <div className="inline-block px-3 py-1 rounded-full text-sm bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium">
-          <Gamepad className="inline-block w-4 h-4 mr-1" />
-          {gameStatus === 'IDLE' && "Ready to Play"}
-          {gameStatus === 'PLAYING' && "Game On!"}
-          {gameStatus === 'PAUSED' && "Game Paused"}
-          {gameStatus === 'GAME_OVER' && "Game Over"}
+        {/* Game status indicator */}
+        <div className="flex justify-center mb-2">
+          <div className="inline-block px-3 py-1 rounded-full text-sm bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium">
+            <Gamepad className="inline-block w-4 h-4 mr-1" />
+            {gameStatus === 'IDLE' && "Ready to Play"}
+            {gameStatus === 'PLAYING' && "Game On!"}
+            {gameStatus === 'PAUSED' && "Game Paused"}
+            {gameStatus === 'GAME_OVER' && "Game Over"}
+          </div>
         </div>
-      </motion.div>
-      
-      {/* Game control buttons (pause/play/restart) */}
-      <div className="flex flex-col gap-3 mb-6 max-w-[280px] mx-auto">
-        <div className="flex gap-3">
+        
+        {/* Primary game controls in a grid layout */}
+        <div className="grid grid-cols-2 gap-3 max-w-[280px] mx-auto">
           {gameStatus === 'PLAYING' && onPause && (
             <motion.div
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
-              className="w-full"
             >
               <Button 
                 variant="outline"
-                className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
+                className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:bg-blue-50 dark:hover:bg-slate-700"
                 onClick={onPause}
               >
                 <Pause className="h-5 w-5 mr-2" />
@@ -92,11 +92,10 @@ const GameControls: React.FC<GameControlsProps> = ({
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
-              className="w-full"
             >
               <Button 
                 variant="outline"
-                className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
+                className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:bg-green-50 dark:hover:bg-slate-700"
                 onClick={onStart}
               >
                 <Play className="h-5 w-5 mr-2" />
@@ -110,11 +109,10 @@ const GameControls: React.FC<GameControlsProps> = ({
               variants={buttonVariants}
               whileHover="hover"
               whileTap="tap"
-              className="w-full"
             >
               <Button 
                 variant="outline"
-                className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
+                className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:bg-green-50 dark:hover:bg-slate-700"
                 onClick={onStart}
               >
                 <Play className="h-5 w-5 mr-2" />
@@ -122,28 +120,75 @@ const GameControls: React.FC<GameControlsProps> = ({
               </Button>
             </motion.div>
           )}
-        </div>
-        
-        <motion.div
-          variants={buttonVariants}
-          whileHover="hover"
-          whileTap="tap"
-          className="w-full"
-        >
-          <Button 
-            variant="outline"
-            className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all border-slate-200 dark:border-slate-700"
-            onClick={onReset}
+          
+          <motion.div
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
           >
-            <RefreshCw className="h-5 w-5 mr-2" />
-            Restart
-          </Button>
-        </motion.div>
-      </div>
+            <Button 
+              variant="outline"
+              className="w-full control-button bg-white dark:bg-slate-800 shadow-md hover:bg-red-50 dark:hover:bg-slate-700"
+              onClick={onReset}
+            >
+              <RefreshCw className="h-5 w-5 mr-2" />
+              Restart
+            </Button>
+          </motion.div>
+        </div>
+      </motion.div>
       
-      {/* Direction controls */}
+      {/* Directional controls - more compact layout */}
       {(gameStatus === 'PLAYING' || gameStatus === 'PAUSED') && (
-        <div className="flex flex-col items-center max-w-[280px] mx-auto">
+        <div className="flex flex-col items-center max-w-[170px] mx-auto">
+          <motion.div
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+            className="mb-2"
+          >
+            <Button
+              variant="outline"
+              className="w-14 h-14 rounded-full control-button bg-white dark:bg-slate-800 shadow-md hover:bg-blue-50 dark:hover:bg-slate-700"
+              onClick={() => onDirectionChange('UP')}
+              disabled={gameStatus === 'PAUSED'}
+            >
+              <ArrowUp className="h-7 w-7 text-slate-800 dark:text-slate-200" />
+            </Button>
+          </motion.div>
+          
+          <div className="flex justify-between w-full mb-2">
+            <motion.div
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
+            >
+              <Button
+                variant="outline"
+                className="w-14 h-14 rounded-full control-button bg-white dark:bg-slate-800 shadow-md hover:bg-blue-50 dark:hover:bg-slate-700"
+                onClick={() => onDirectionChange('LEFT')}
+                disabled={gameStatus === 'PAUSED'}
+              >
+                <ArrowLeft className="h-7 w-7 text-slate-800 dark:text-slate-200" />
+              </Button>
+            </motion.div>
+            
+            <motion.div
+              variants={buttonVariants}
+              whileHover="hover"
+              whileTap="tap"
+            >
+              <Button
+                variant="outline"
+                className="w-14 h-14 rounded-full control-button bg-white dark:bg-slate-800 shadow-md hover:bg-blue-50 dark:hover:bg-slate-700"
+                onClick={() => onDirectionChange('RIGHT')}
+                disabled={gameStatus === 'PAUSED'}
+              >
+                <ArrowRight className="h-7 w-7 text-slate-800 dark:text-slate-200" />
+              </Button>
+            </motion.div>
+          </div>
+          
           <motion.div
             variants={buttonVariants}
             whileHover="hover"
@@ -151,68 +196,21 @@ const GameControls: React.FC<GameControlsProps> = ({
           >
             <Button
               variant="outline"
-              className="w-16 h-16 mb-2 control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all"
-              onClick={() => onDirectionChange('UP')}
+              className="w-14 h-14 rounded-full control-button bg-white dark:bg-slate-800 shadow-md hover:bg-blue-50 dark:hover:bg-slate-700" 
+              onClick={() => onDirectionChange('DOWN')}
               disabled={gameStatus === 'PAUSED'}
             >
-              <ArrowUp className="h-8 w-8 text-slate-800 dark:text-slate-200" />
+              <ArrowDown className="h-7 w-7 text-slate-800 dark:text-slate-200" />
             </Button>
           </motion.div>
-          
-          <div className="flex justify-center gap-2 mb-2">
-            <motion.div
-              variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
-            >
-              <Button
-                variant="outline"
-                className="w-16 h-16 control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all"
-                onClick={() => onDirectionChange('LEFT')}
-                disabled={gameStatus === 'PAUSED'}
-              >
-                <ArrowLeft className="h-8 w-8 text-slate-800 dark:text-slate-200" />
-              </Button>
-            </motion.div>
-            
-            <motion.div
-              variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
-            >
-              <Button
-                variant="outline"
-                className="w-16 h-16 control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all"
-                onClick={() => onDirectionChange('DOWN')}
-                disabled={gameStatus === 'PAUSED'}
-              >
-                <ArrowDown className="h-8 w-8 text-slate-800 dark:text-slate-200" />
-              </Button>
-            </motion.div>
-            
-            <motion.div
-              variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
-            >
-              <Button
-                variant="outline"
-                className="w-16 h-16 control-button bg-white dark:bg-slate-800 shadow-md hover:shadow-lg transition-all"
-                onClick={() => onDirectionChange('RIGHT')}
-                disabled={gameStatus === 'PAUSED'}
-              >
-                <ArrowRight className="h-8 w-8 text-slate-800 dark:text-slate-200" />
-              </Button>
-            </motion.div>
-          </div>
         </div>
       )}
 
-      {/* Speed control slider - always visible */}
+      {/* Speed control slider - more visually prominent */}
       {onSpeedChange && (
         <div className="mt-6 max-w-[280px] mx-auto">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center">
+            <span className="text-sm text-slate-500 dark:text-slate-400 flex items-center font-medium">
               <Gauge className="h-4 w-4 mr-1" /> {gameStatus === 'PLAYING' ? 'Speed' : 'Initial Speed'}
             </span>
             <motion.div
