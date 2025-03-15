@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Star, Zap } from 'lucide-react';
+import { Trophy, Star, Zap, Apple } from 'lucide-react';
 
 interface ScoreBoardProps {
   score: number;
@@ -25,24 +25,24 @@ const ScoreBoard: React.FC<ScoreBoardProps> = ({
   };
 
   return (
-    <div className="flex flex-col w-full gap-3">
+    <div className="flex flex-row w-full gap-3 justify-between">
       <motion.div 
         key={`score-${score}`}
-        className="glass-panel py-2 px-4 rounded-lg shadow-lg w-full"
+        className="glass-panel py-2 px-4 rounded-lg shadow-lg flex-1"
         variants={scoreVariants}
         initial="initial"
         animate="animate"
         whileHover="highlight"
       >
         <p className="font-medium text-sm text-slate-500 dark:text-slate-300 flex items-center">
-          <Zap className="w-4 h-4 mr-1 text-blue-500 dark:text-blue-400" />
+          <Apple className="w-4 h-4 mr-1 text-red-500 dark:text-red-400" />
           Score
         </p>
         <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{score}</p>
       </motion.div>
       
       <motion.div 
-        className="glass-panel py-2 px-4 rounded-lg shadow-lg w-full"
+        className="glass-panel py-2 px-4 rounded-lg shadow-lg flex-1"
         variants={scoreVariants}
         initial="initial"
         animate="animate"

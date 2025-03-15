@@ -110,6 +110,7 @@
   border: 1px solid rgba(0, 0, 0, 0.06);
   backdrop-filter: blur(20px);
   transition: all 0.3s ease-in-out;
+  will-change: transform; /* Add will-change to optimize */
 }
 
 .dark .snake-grid {
@@ -123,6 +124,9 @@
   aspect-ratio: 1/1;
   border-radius: 3px;
   transition: all 0.15s ease-out;
+  will-change: transform, opacity; /* Add will-change to optimize */
+  backface-visibility: hidden; /* Reduce flickering */
+  transform: translateZ(0); /* Force GPU acceleration */
 }
 
 .snake-food {
@@ -131,6 +135,16 @@
   transform-origin: center;
   animation: pulse-food 2s infinite ease-in-out;
   box-shadow: 0 0 10px rgba(255, 0, 128, 0.3);
+}
+
+/* Apple food styling */
+.apple-food {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse-food 2s infinite ease-in-out;
+  transform-origin: center;
+  filter: drop-shadow(0 0 3px rgba(255, 0, 0, 0.3));
 }
 
 .snake-body {
@@ -158,12 +172,15 @@
   background-color: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(8px);
   animation: appear 0.4s ease-out forwards;
+  will-change: opacity, transform; /* Optimize animations */
+  transform: translateZ(0); /* Force GPU acceleration */
 }
 
 .paused-overlay {
   background-color: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(4px);
   animation: appear-subtle 0.3s ease-out forwards;
+  will-change: opacity; /* Optimize animations */
 }
 
 .dark .game-over-overlay {
@@ -231,12 +248,12 @@
   0%, 100% {
     opacity: 1;
     transform: scale(1);
-    box-shadow: 0 0 10px rgba(255, 0, 128, 0.3);
+    filter: drop-shadow(0 0 3px rgba(255, 0, 0, 0.3));
   }
   50% {
     opacity: 0.9;
     transform: scale(1.1);
-    box-shadow: 0 0 15px rgba(255, 0, 128, 0.5);
+    filter: drop-shadow(0 0 6px rgba(255, 0, 0, 0.5));
   }
 }
 

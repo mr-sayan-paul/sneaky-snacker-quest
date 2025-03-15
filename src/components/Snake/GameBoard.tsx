@@ -1,10 +1,9 @@
-
 import React, { useMemo } from 'react';
 import { Position, GameStatus, Direction } from './useSnakeGame';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import SnakeSegment from './SnakeSegment';
-import { Pause, Play, Trophy, Flame } from 'lucide-react';
+import { Pause, Play, Trophy, Flame, Apple } from 'lucide-react';
 
 interface GameBoardProps {
   snake: Position[];
@@ -97,18 +96,17 @@ const GameBoard: React.FC<GameBoardProps> = ({
           />
         )}
         
-        {/* Render food with animation */}
-        <motion.div
+        {/* Render food as apple with animation */}
+        <div
           key={`food-${food.x}-${food.y}`}
-          initial={{ scale: 0.5, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-          className="snake-cell snake-food"
+          className="snake-cell apple-food"
           style={{ 
             gridColumn: food.x + 1, 
             gridRow: food.y + 1,
           }}
-        />
+        >
+          <Apple className="w-full h-full text-red-500" />
+        </div>
       </div>
       
       {/* Game over, paused, or start overlay - improved transitions */}
@@ -118,7 +116,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
             key={`overlay-${gameStatus}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            exit={{ opacity: 0, transition: { duration: 0.1 } }}
             transition={{ duration: 0.2 }}
             className={`absolute inset-0 flex flex-col items-center justify-center game-over-overlay dark:bg-slate-900/85 ${gameStatus === 'PAUSED' ? 'paused-overlay' : ''}`}
           >

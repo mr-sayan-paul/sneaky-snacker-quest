@@ -140,6 +140,20 @@ const Index = () => {
           </div>
           
           <div className="md:col-span-1 flex flex-col gap-4">
+            {/* Scoreboards moved ABOVE game controls */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="glass-panel p-4 rounded-lg"
+            >
+              <h3 className="font-semibold text-lg mb-3 text-center text-slate-800 dark:text-slate-200">Score Board</h3>
+              <ScoreBoard 
+                score={score} 
+                highScore={highScore} 
+              />
+            </motion.div>
+            
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -158,20 +172,6 @@ const Index = () => {
                 gameStatus={gameStatus}
                 toggleTheme={toggleTheme}
                 isDarkMode={isDarkMode}
-              />
-            </motion.div>
-            
-            {/* Scoreboards moved under game controls */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="glass-panel p-4 rounded-lg"
-            >
-              <h3 className="font-semibold text-lg mb-3 text-center text-slate-800 dark:text-slate-200">Score Board</h3>
-              <ScoreBoard 
-                score={score} 
-                highScore={highScore} 
               />
             </motion.div>
           </div>
